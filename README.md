@@ -26,7 +26,30 @@ sbt ~reStart
 ```
 
 
+## ENVIRONEMENT VARIABLES:
+
+```
+    keyMapping = [
+        { npType = "BuyerApp", token = "xxxx", networkId = "xx.co"},
+        { npType = "SellerApp", token = "xxxx", networkId = "xx.rapidor.co"}
+
+    ]
+
+    port = 5602
+    otelServiceName = "pre-prod-ondc-observability"
+    otelExporterTracesEndpoint = "http://localhost:4317"
+```
+
 
 ## MILESTONES
-### MILESTONE 1:
 * [x] Set up basic scala project.
+* [x] Integrate tracing.
+* [x] Integrate OpenAPI swagger documentation.
+* [x] Develop Health check API.
+* [ ] Override default error message for request body validation error.
+* [ ] Integrate Kafka Consumer and Producer.
+* [ ] Develop Observability Producer API.
+* [ ] Develop JWT token generation command.
+* [ ] Develop application release Script.
+* [ ] Develop application restart Script.
+* [ ] Middleware to save the request and response to tracing.

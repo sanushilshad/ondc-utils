@@ -1,5 +1,7 @@
 import Dependencies._
 
+enablePlugins(AssemblyPlugin)
+
 ThisBuild / organization := "com.placeorder"
 ThisBuild / version := "0.0.1"
 ThisBuild / scalaVersion      := "3.6.2"
@@ -17,7 +19,17 @@ def settingsApp = Seq(
     zioHttp, 
     zioTest, 
     zioTestSBT, 
-    zioTestMagnolia
+    zioTestMagnolia,
+    zioOpenTelemetry,
+    openTelemetrySDK,
+    openTelemetryExporter,
+    openTelemetrySemConv,
+    openTelemetryLogging,
+    zioOpenTelemetryLogging,
+    typeSafe,
+    zioConfig,
+    zioMagnolia,
+    zioTypeSafe
   ),
 )
 
@@ -35,3 +47,12 @@ addCommandAlias("fmt", "scalafmt; Test / scalafmt; sFix;")
 addCommandAlias("fmtCheck", "scalafmtCheck; Test / scalafmtCheck; sFixCheck")
 addCommandAlias("sFix", "scalafix OrganizeImports; Test / scalafix OrganizeImports")
 addCommandAlias("sFixCheck", "scalafix --check OrganizeImports; Test / scalafix --check OrganizeImports")
+
+maintainer := "Sanu Shilshad <sanushilshad@gmail.com>"
+
+
+assemblyJarName in assembly := "ondc-observability-0.0.1.jar" 
+mergeStrategy in assembly := {
+  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+  case _ => MergeStrategy.first
+}

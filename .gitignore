@@ -11,3 +11,4 @@ metals.sbt
 target/
 .env
 env.sh
+env.conf
