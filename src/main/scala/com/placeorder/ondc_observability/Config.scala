@@ -8,25 +8,25 @@ import zio.config.ConfigErrorOps
 import zio.json.{JsonEncoder, JsonDecoder}
 
 
-enum NPType(val a: String) derives JsonEncoder{
-  case BuyerApp extends NPType("buyer_app")
-  case SellerApp extends NPType("seller_app")
-}
+// enum NPType(val a: String) derives JsonEncoder{
+//   case BuyerApp extends NPType("buyer_app")
+//   case SellerApp extends NPType("seller_app")
+// }
 
 
 
-case class TokenMapping(
-  npType: NPType,
-  token: String,
-  networkId: String,
+case class UrlMapping(
+  id: URLId,
+  url: String
 )
 
 
 case class AppConfig(
-  keyMapping: List[TokenMapping],
+  // keyMapping: List[TokenMapping],
   port: Int,
   otelServiceName: String,
-  otelExporterTracesEndpoint: String
+  otelExporterTracesEndpoint: String,
+  // urlMapping: List[UrlMapping]
 )
 
 

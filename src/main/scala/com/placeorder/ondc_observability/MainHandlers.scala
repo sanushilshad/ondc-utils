@@ -11,12 +11,12 @@ import io.opentelemetry.api.GlobalOpenTelemetry
 object MainHandlers {
   val healthCheckRequest: UIO[Dom] =  ZIO.succeed(Dom.text("Running Server"))
 
-  def ObsProducerRequest(body: ObsProducerBody): ZIO[Tracing & AppConfig, CustomError, GenericResponse[Unit]] = {
+  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, CustomError, GenericResponse[Unit]] = {
     for {
   
-      _ <- ZIO.serviceWithZIO[AppConfig] { config =>
-        ZIO.succeed(println(s"Finished Processing Hello Request on ports: ${config.port}"))
-      }
+      // _ <- ZIO.serviceWithZIO[AppConfig] { config =>
+      //   ZIO.succeed(println(s"Finished Processing Hello Request on ports: ${config.urlMapping}"))
+      // }
 
       response <- ZIO.serviceWithZIO[Tracing] { tracing =>
         tracing.span("hello-request", SpanKind.SERVER) {

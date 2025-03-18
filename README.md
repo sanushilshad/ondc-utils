@@ -1,7 +1,7 @@
 
-# ONDC OBSERVABILITY SERVICE
+# ONDC UTILS SERVICE
  
-Service for sending observability data to ONDC endpoint.
+Service for fetching ONDC utility data.
 The progress can be tracked here: [milestones](#MILESTONES)
 
 ## Tech Stack
@@ -11,7 +11,6 @@ The progress can be tracked here: [milestones](#MILESTONES)
 | Server | Scala, Bash |
 | Database | PostgreSQL |
 | API Documention | OpenAPI Swagger |
-| Messaging System | Apache Kafka |
 
 
 ## NEW PROJECT SETUP COMMAND:
@@ -29,9 +28,9 @@ sbt ~reStart
 ## ENVIRONEMENT VARIABLES:
 
 ```
-    keyMapping = [
-        { npType = "BuyerApp", token = "xxxx", networkId = "xx.co"},
-        { npType = "SellerApp", token = "xxxx", networkId = "xx.rapidor.co"}
+    urlMapping = [
+        { id = "user", url = "xxxx"},
+        { npType = "websocket", "url"="xxx"}
 
     ]
 
@@ -47,9 +46,11 @@ sbt ~reStart
 * [x] Integrate OpenAPI swagger documentation.
 * [x] Develop Health check API.
 * [ ] Override default error message for request body validation error.
-* [ ] Integrate Kafka Consumer and Producer.
-* [ ] Develop Observability Producer API.
-* [ ] Develop JWT token generation command.
+* [ ] Add URL fetch API.
+* [ ] Country Fetch API.
+* [ ] City Fetch API.
+* [ ] Category Fetch API.
+* [ ] Domain Fetch API.
+* [ ] Category Attribute Fetch API.
 * [ ] Develop application release Script.
 * [ ] Develop application restart Script.
-* [ ] Middleware to save the request and response to tracing.

@@ -25,31 +25,24 @@ object MainRoutes {
 
         val healthCheckEndpoint = Endpoint(Method.GET / "health_check").out[Dom](Doc.p("Successful execution")) ?? Doc.p("API for checking the status of the server")
         
-        val ObsProducerPoint = Endpoint(Method.POST / "send")
-        .in[ObsProducerBody]
+        val ONDCUtilPoint = Endpoint(Method.POST / "url")
+        .in[FetchURLBody]
         .out[GenericResponse[Unit]](Doc.p("Successful execution"))
         .outErrors(
             HttpCodec.error[CustomError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
             HttpCodec.error[CustomError](Status.BadRequest) ?? Doc.p("Bad Request"),
-        ) ?? Doc.p("API for sending observability asynchronously")
+        ) ?? Doc.p("API for fetching all URLs required by UI")
 
 
-        
-        val openApi = OpenAPIGen.fromEndpoints("Observability API", "1.0.0", healthCheckEndpoint, ObsProducerPoint)
+        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCUtilPoint)
 
         val routes = healthCheckEndpoint.implement { case _ =>
             MainHandlers.healthCheckRequest
         }.toRoutes ++
-        ObsProducerPoint.implement { 
+        ONDCUtilPoint.implement { 
             case body  =>
-                MainHandlers.ObsProducerRequest(body)
-                // .mapError {
-            //   case CustomError(errorMessage) =>
-            //     // Return the appropriate GenericResponse on error
-            //     GenericResponse.error("Internal Server Error", Status.BadRequest)
-            // }
-
-
+                MainHandlers.fetchURLRequest(body)
+ 
         }.toRoutes ++
         SwaggerUI.routes("/docs", openApi)
 

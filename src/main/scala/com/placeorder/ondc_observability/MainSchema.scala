@@ -8,9 +8,59 @@ import zio.http.Response.status
 import zio.http.Response
 import zio.http.Status
 import zio.schema.derived
+import zio.json.JsonDecoder
+import zio.json.DeriveJsonDecoder
 
-final case class ObsProducerBody(city: String, @validate(Validation.greaterThan(17)) age: Int) derives Schema
+// enum URLId(val a: String) derives Schema,  JsonEncoder, JsonDecoder {
+//   case User      extends URLId("user") 
+//   case Websocket extends URLId("websocket")
+//   case Placeorder extends URLId("placeorder")
+// }
 
+
+final case class FetchURLBody(id: URLId) derives Schema
+
+enum URLId(val idType: String):
+  case User extends URLId("user")
+  case Websocket extends URLId("websocket")
+  case Placeorder extends URLId("placeorder")
+
+
+object URLId:
+  // Custom JsonDecoder for URLId
+  implicit val urlIdDecoder: JsonDecoder[URLId] = JsonDecoder.string.mapOrFail { str =>
+    URLId.values.find(_.idType.equalsIgnoreCase(str)) match {
+      case Some(urlId) => Right(urlId)
+      case None => Left(s"Unknown URLId: $str")
+    }
+  }
+
+  // Custom JsonEncoder for URLId (optional, for consistent output)
+  implicit val urlIdEncoder: JsonEncoder[URLId] = JsonEncoder.string.contramap(_.idType)
+
+// sealed trait URLId
+// object URLId {
+//   case object User extends URLId
+//   case object Websocket extends URLId
+//   case object Placeorder extends URLId
+
+
+//   def fromString(value: String): Option[URLId] = value match {
+//     case "user"   => Some(User)
+//     case "websocket" => Some(Websocket)
+//     case "placeorder"  => Some(Placeorder)
+//     case _          => None
+//   }
+// }
+
+
+
+
+
+object FetchURLBody:
+  implicit val fetchURLBodyDecoder: JsonDecoder[FetchURLBody] = DeriveJsonDecoder.gen[FetchURLBody]
+  implicit val fetchURLBodyEncoder: JsonEncoder[FetchURLBody] = DeriveJsonEncoder.gen[FetchURLBody]
+//final case class FetchURLBody(city: String, @validate(Validation.greaterThan(17)) age: Int) derives Schema
 // object ObsProducerBody {
 //     implicit val schema: Schema[ObsProducerBody] = DeriveSchema.gen[ObsProducerBody]
 // }
