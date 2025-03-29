@@ -1,34 +1,37 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 import zio._
 import zio.http.template.Dom
 import zio.telemetry.opentelemetry.tracing.Tracing
 import io.opentelemetry.api.trace.{Span, SpanKind}
 import io.opentelemetry.api.GlobalOpenTelemetry
-
+import zio.http.Status
 
 
 
 object MainHandlers {
-  val healthCheckRequest: UIO[Dom] =  ZIO.succeed(Dom.text("Running Server"))
+  val healthCheckRequest: UIO[Dom] = ZIO.succeed(Dom.text("Running Server"))
 
-  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, CustomError, GenericResponse[Unit]] = {
+  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, GenericError, GenericResponse[Map[String, String]]] = {
     for {
-  
-      // _ <- ZIO.serviceWithZIO[AppConfig] { config =>
-      //   ZIO.succeed(println(s"Finished Processing Hello Request on ports: ${config.urlMapping}"))
-      // }
-
-      response <- ZIO.serviceWithZIO[Tracing] { tracing =>
-        tracing.span("hello-request", SpanKind.SERVER) {
-          for {
-            _   <- tracing.addEvent("Processing Hello Request")
-            res <- ZIO.succeed("Hello, tracing with Jaeger!")
-            _   <- tracing.addEvent("Finished Processing Hello Request")
-          } yield res
-        }
+      config <- ZIO.service[AppConfig]
+      tracing <- ZIO.service[Tracing]
+      response <- tracing.span("fetch-url-request", SpanKind.SERVER) {
+        for {
+          _ <- tracing.addEvent("Processing Fetch URL Request")
+          _ <- ZIO.logInfo(s"Fetch URL Request: $body")
+          response <- body.id match {
+            case None =>
+              ZIO.succeed(config.urlMapping.view.mapValues(_.url).toMap)
+            case Some(id) =>
+              ZIO.fromOption(config.urlMapping.get(id.toString))
+                .map(urlMapping => Map(id.toString -> urlMapping.url))
+                .orElseFail(GenericError.DataNotFound(customerMessage = "No data found"))
+          }
+          _ <- tracing.addEvent(s"Response: $response")
+          _ <- ZIO.logInfo(s"Fetch URL Response: $response") // Log response
+          _ <- tracing.addEvent("Finished Processing Fetch URL Request")
+        } yield response
       }
-    } yield GenericResponse.success(None)
+    } yield GenericResponse.success(Some(response))
   }
-
-
 }

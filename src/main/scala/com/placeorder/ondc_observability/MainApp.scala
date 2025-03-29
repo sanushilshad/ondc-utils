@@ -1,16 +1,16 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 
 import zio._
 import zio.http.Server
 import zio.telemetry.opentelemetry.OpenTelemetry
 import zio.telemetry.opentelemetry.tracing.Tracing
-import com.placeorder.ondc_observability.Config.loadConfig
+import com.placeorder.ondc_utils.Config.loadConfig
 import zio.telemetry.opentelemetry.baggage.Baggage
 import zio.telemetry.opentelemetry.baggage.propagation.BaggagePropagator
 
 object MainApp extends ZIOAppDefault {
 
-  private val instrumentationScopeName = "com.placeorder.ondc_observability"
+  private val instrumentationScopeName = "com.placeorder.ondc_utils"
   def run =
     loadConfig().flatMap { appConfig =>
       val appLayer = ZLayer.succeed(appConfig)
@@ -25,7 +25,8 @@ object MainApp extends ZIOAppDefault {
           OpenTelemetry.contextZIO,
           Server.defaultWithPort(appConfig.port),
           OpenTelemetry.baggage(),
-          appLayer
+          appLayer,
+          // ZLayer.Debug.mermaid
         )
     }.catchAll { error =>
       Console.printLine(s"Failed to load config: $error").exitCode

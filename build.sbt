@@ -13,7 +13,7 @@ ThisBuild / scalafixDependencies ++= List("com.github.liancheng" %% "organize-im
 
 def settingsApp = Seq(
   name := "ondc-observability",
-  Compile / run / mainClass := Option("com.placeorder.ondc_observability.MainApp"),
+  Compile / run / mainClass := Option("com.placeorder.ondc_utils.MainApp"),
   testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   libraryDependencies ++= Seq(
     zioHttp, 

@@ -1,4 +1,4 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 
 import zio._
 import zio.http.{Routes,Response, Method}
@@ -7,7 +7,7 @@ import zio.http.codec.Doc
 import zio.http.endpoint.{ Endpoint}
 import zio.http.endpoint.openapi.{OpenAPIGen, SwaggerUI}
 import zio.http.template.Dom
-
+import zio.http._
 import zio.telemetry.opentelemetry.tracing.Tracing
 import zio.telemetry.opentelemetry.baggage.Baggage
 import zio.telemetry.opentelemetry.baggage.propagation.BaggagePropagator
@@ -25,24 +25,26 @@ object MainRoutes {
 
         val healthCheckEndpoint = Endpoint(Method.GET / "health_check").out[Dom](Doc.p("Successful execution")) ?? Doc.p("API for checking the status of the server")
         
-        val ONDCUtilPoint = Endpoint(Method.POST / "url")
+        val ONDCURLPoint = Endpoint(Method.POST / "url")
         .in[FetchURLBody]
-        .out[GenericResponse[Unit]](Doc.p("Successful execution"))
+        .out[GenericResponse[Map[String, String]]](Doc.p("Successful execution"))
         .outErrors(
-            HttpCodec.error[CustomError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
-            HttpCodec.error[CustomError](Status.BadRequest) ?? Doc.p("Bad Request"),
+            HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
+            HttpCodec.error[GenericError.ValidationError](Status.BadRequest) ?? Doc.p("Bad Request"),
+            HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for fetching all URLs required by UI")
 
 
-        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCUtilPoint)
+        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCURLPoint)
 
-        val routes = healthCheckEndpoint.implement { case _ =>
+        val routes = healthCheckEndpoint.implement { 
+            case _ =>
             MainHandlers.healthCheckRequest
         }.toRoutes ++
-        ONDCUtilPoint.implement { 
-            case body  =>
-                MainHandlers.fetchURLRequest(body)
- 
+        ONDCURLPoint.implement { 
+            // case body  =>
+            //     MainHandlers.fetchURLRequest(body)
+            MainHandlers.fetchURLRequest
         }.toRoutes ++
         SwaggerUI.routes("/docs", openApi)
 

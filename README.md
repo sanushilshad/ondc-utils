@@ -39,14 +39,33 @@ sbt ~reStart
     otelExporterTracesEndpoint = "http://localhost:4317"
 ```
 
+## VSCODE
+
+```json
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "scala",
+      "request": "launch",
+      "name": "Run ZIO HTTP App",
+      "mainClass": "com.placeorder.ondc_utils.MainApp",  
+      "buildTarget": "root",                   
+      "args": [],
+    //   "jvmOptions": ["-Dconfig.resource=application.conf"]
+    }
+  ]
+}
+```
 
 ## MILESTONES
 * [x] Set up basic scala project.
 * [x] Integrate tracing.
 * [x] Integrate OpenAPI swagger documentation.
 * [x] Develop Health check API.
+* [x] Add URL fetch API.
+* [ ] Add authorization middleware connecting to user micro-service.
 * [ ] Override default error message for request body validation error.
-* [ ] Add URL fetch API.
 * [ ] Country Fetch API.
 * [ ] City Fetch API.
 * [ ] Category Fetch API.

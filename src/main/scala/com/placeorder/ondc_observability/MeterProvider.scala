@@ -1,4 +1,4 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 
 
 import zio.{RIO, Scope, ZIO, durationInt}

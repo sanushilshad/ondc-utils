@@ -1,4 +1,4 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 
 import zio.test._
 import zio.http._

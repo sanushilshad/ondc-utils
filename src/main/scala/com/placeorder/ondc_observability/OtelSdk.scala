@@ -1,4 +1,4 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 
 
 import zio.{TaskLayer, ZIO}
@@ -14,7 +14,7 @@ object OtelSdk {
         tracerProvider <- TracerProvider.jaeger(resourceName, tracingEndPoint)
         // meterProvider  <- MeterProvider.stdout(resourceName)
         loggerProvider <- LoggerProvider.stdout(resourceName)
-        // tracer = tracerProvider.get("com.placeorder.ondc_observability") // Get a tracer
+        // tracer = tracerProvider.get("com.placeorder.ondc_utils") // Get a tracer
         // _ <- ZIO.attempt {
         //        val span = tracer.spanBuilder("initialization-warning").startSpan()
         //        try {

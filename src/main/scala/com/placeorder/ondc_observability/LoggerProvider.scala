@@ -1,4 +1,4 @@
-package com.placeorder.ondc_observability
+package com.placeorder.ondc_utils
 
 import io.opentelemetry.api.common.Attributes
 import io.opentelemetry.exporter.otlp.http.logs.OtlpHttpLogRecordExporter
