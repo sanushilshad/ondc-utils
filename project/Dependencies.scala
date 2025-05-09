@@ -20,4 +20,6 @@ object Dependencies {
   val zioConfig  = "dev.zio" %% "zio-config" % "4.0.3"
   val zioTypeSafe  = "dev.zio" %% "zio-config-typesafe" % "4.0.2"
   val zioMagnolia= "dev.zio" %% "zio-config-magnolia" % "4.0.3"
+  val jWT = "com.github.jwt-scala" %% "jwt-zio-json" % "10.0.0"
+ 
 }

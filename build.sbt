@@ -29,7 +29,8 @@ def settingsApp = Seq(
     typeSafe,
     zioConfig,
     zioMagnolia,
-    zioTypeSafe
+    zioTypeSafe,
+    jWT
   ),
 )
 

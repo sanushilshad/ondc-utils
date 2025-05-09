@@ -9,6 +9,7 @@ import zio.json.{JsonEncoder, JsonDecoder}
 import zio.{Config as ZioConfig}
 import zio.config.magnolia.derived
 import zio.config.magnolia.deriveConfigFromConfig
+import scala.compiletime.ops.string
 // enum NPType(val a: String) derives JsonEncoder{
 //   case BuyerApp extends NPType("buyer_app")
 //   case SellerApp extends NPType("seller_app")
@@ -22,12 +23,30 @@ case class UrlMapping(
 )
 
 
+case class TracingSetting( 
+  otelServiceName: String,
+  otelExporterTracesEndpoint: String
+)
+
+
+case class AppSetting(
+  port: Int,
+)
+
+case class UserSetting(
+  url: String,
+  token: String
+)
+
+
+
 case class AppConfig(
   // keyMapping: List [TokenMapping],
-  port: Int,
-  otelServiceName: String,
-  otelExporterTracesEndpoint: String,
-  urlMapping: Map[String, UrlMapping]
+  application: AppSetting,
+  tracing: TracingSetting,
+  user: UserSetting,
+  urlMapping: Map[String, UrlMapping],
+
 )
 
 

@@ -11,7 +11,7 @@ import zio.http.Status
 object MainHandlers {
   val healthCheckRequest: UIO[Dom] = ZIO.succeed(Dom.text("Running Server"))
 
-  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, GenericError, GenericResponse[Map[String, String]]] = {
+  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, GenericError, GenericSuccess[Map[String, String]]] = {
     for {
       config <- ZIO.service[AppConfig]
       tracing <- ZIO.service[Tracing]
@@ -32,6 +32,6 @@ object MainHandlers {
           _ <- tracing.addEvent("Finished Processing Fetch URL Request")
         } yield response
       }
-    } yield GenericResponse.success(Some(response))
+    } yield GenericSuccess.SuccessResponse(customerMessage="Successfully fetched data", data= Some(response))
   }
 }

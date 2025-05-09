@@ -45,11 +45,7 @@ object URLId {
 
 }
 
-final case class FetchURLBody(id: Option[URLId]) derives Schema
-
-
-
-
+final case class FetchURLBody(id: Option[String]) derives Schema
 
 
 
@@ -63,31 +59,35 @@ object FetchURLBody:
 
 
 
-
-case class GenericResponse[D](
-  status: Boolean,
-  customerMessage: String,
-  code: String,
-  data: Option[D]
-) 
-derives Schema, JsonEncoder
+trait GenericResponse[D]:
+  val status: Boolean
+  val customerMessage: String
+  val code: Int  
+  val data: Option[D]
 
 
 
-object GenericResponse {
+sealed trait GenericSuccess[D] extends GenericResponse[D] derives  Schema:
+    override val status: Boolean = true
+
+object GenericSuccess:
+    final case class SuccessResponse[D](code: Int = Status.Ok.code, customerMessage: String, data: Option[D]) extends GenericSuccess[D] derives  JsonCodec
 
 
-    def apply[D](message: String, statusCode: Status): GenericResponse[Unit] =
-        GenericResponse(false, message, statusCode.code.toString(), None)
+// object GenericResponse {
 
-    def success[D](data: Option[D], message: String = "Success", statusCode: Status = Status.Ok): GenericResponse[D] =
-        GenericResponse(true, message, statusCode.code.toString(), data)
+
+//     def apply[D](message: String, statusCode: Status): GenericResponse[Unit] =
+//         GenericResponse(false, message, statusCode.code.toString(), None)
+
+//     def success[D](data: Option[D], message: String = "Success", statusCode: Status = Status.Ok): GenericResponse[D] =
+//         GenericResponse(true, message, statusCode.code.toString(), data)
 
     
-    def error[D](message: String, statusCode: Status): GenericResponse[Unit] =
-        GenericResponse(false, message, statusCode.code.toString(), None)
+//     def error[D](message: String, statusCode: Status): GenericResponse[Unit] =
+//         GenericResponse(false, message, statusCode.code.toString(), None)
 
         
-}
+// }
 
 
