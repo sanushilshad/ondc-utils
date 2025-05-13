@@ -11,7 +11,7 @@ import zio.http.Status
 object MainHandlers {
   val healthCheckRequest: UIO[Dom] = ZIO.succeed(Dom.text("Running Server"))
 
-  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, GenericError, GenericSuccess[Map[String, String]]] = {
+  def fetchURLRequest(body: FetchURLBody): ZIO[Tracing & AppConfig, GenericError, GenericSuccess[Map[String, String]]] = 
     for {
       config <- ZIO.service[AppConfig]
       tracing <- ZIO.service[Tracing]
@@ -33,5 +33,36 @@ object MainHandlers {
         } yield response
       }
     } yield GenericSuccess.SuccessResponse(customerMessage="Successfully fetched data", data= Some(response))
-  }
+
+
+  def fetchCountryRequest(body: FetchCountryBody): ZIO[Tracing & AppConfig, GenericError, GenericSuccess[List[countryMapData]]] =
+    for {
+      tracing   <- ZIO.service[Tracing]                       // 1) grab Tracing
+      countries <- tracing.span("fetch-country-request", SpanKind.SERVER) {
+        for {
+          _         <- tracing.addEvent("processing fetch country request")
+          _         <- ZIO.logInfo(s"Fetch country request body: $body")
+          all        = Country.values.toList
+
+          filtered   = body.query.fold(all.take(10)) { q =>
+                          all.filter(c => c.label.equalsIgnoreCase(q) || c.code.equalsIgnoreCase(q)) match {
+                            case Nil     => all.filter(_.label.toLowerCase.contains(q.toLowerCase)).take(10)
+                            case exact   => exact
+                          }
+                        }
+
+          result    <- if filtered.nonEmpty then ZIO.succeed(filtered)
+                        else ZIO.fail(GenericError.DataNotFound(customerMessage="No data found"))
+
+          finalData <- ZIO.succeed(result.map(c => countryMapData(c.label, c.code)))
+          _         <- tracing.addEvent(s"Response: $finalData")
+          _         <- ZIO.logInfo(s"Fetch Country Response: $finalData")
+          _         <- tracing.addEvent("Finished Processing Fetch Country Request")
+        } yield finalData
+      }
+    } yield GenericSuccess.SuccessResponse(
+              customerMessage = "Successfully fetched data",
+              data            = Some(countries)
+              )
+
 }

@@ -34,8 +34,8 @@ object MainRoutes {
             HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for fetching all URLs required by UI") 
 
-        val countryListPoint = Endpoint(Method.POST / "country/").in[FetchURLBody]
-        .out[GenericSuccess[Map[String, String]]](Doc.p("Successful execution"))
+        val countryListPoint = Endpoint(Method.POST / "country/").in[FetchCountryBody]
+        .out[GenericSuccess[List[countryMapData]]](Doc.p("Successful execution"))
         .outErrors(
             HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
             HttpCodec.error[GenericError.ValidationError](Status.BadRequest) ?? Doc.p("Bad Request"),
@@ -49,16 +49,13 @@ object MainRoutes {
             MainHandlers.healthCheckRequest
         }.toRoutes  ++
         ONDCURLPoint.implement { 
-            // case body  =>
-            //     MainHandlers.fetchURLRequest(body)
             MainHandlers.fetchURLRequest
         }.toRoutes ++
         countryListPoint.implement { 
             // case body  =>
             //     MainHandlers.fetchURLRequest(body)
-            MainHandlers.fetchURLRequest
+            MainHandlers.fetchCountryRequest
         }.toRoutes.@@(bearerAuthWithContext) ++
-        // }.toRoutes.@@(bearerAuthWithContext) ++
         SwaggerUI.routes("/docs", openApi)
 
         routes

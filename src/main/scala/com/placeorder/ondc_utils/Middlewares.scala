@@ -27,8 +27,6 @@ val SECRET_KEY = "secretKey"
 def jwtDecode(token: String, key: String): Try[JwtClaim] =
   Jwt.decode(token, key, Seq(JwtAlgorithm.HS512))
 
-def handleAuthError(error: GenericError): Response =
-  Response.badRequest(error.toJson)
 
 // val bearerAuthWithContext: HandlerAspect[Any, String] =
 //   HandlerAspect.interceptIncomingHandler(Handler.fromFunctionZIO[Request] { request =>
@@ -54,13 +52,14 @@ val bearerAuthWithContext: HandlerAspect[UserClient, UserAccount] =
     request.header(Header.Authorization) match {
       case Some(Header.Authorization.Bearer(token)) =>
         for {
-          user <- ZIO.serviceWithZIO[UserClient](_.getUserAccount(userAuthToken = Some(token.value.mkString)))
-            .mapError(e => Response.internalServerError(e.getMessage()))
+          user <- ZIO
+            .serviceWithZIO[UserClient](_.getUserAccount(userAuthToken = Some(token.value.mkString)))
+            .mapError(e => Response.json(GenericError.UnexpectedError(customerMessage = e.getMessage).toJson).status(Status.InternalServerError))
         } yield (request, user)
 
       case _ =>
         ZIO
-          .fail(GenericError.UnexpectedError(customerMessage = "Authorization header not found"))
-          .mapError(handleAuthError)
+          .fail(GenericError.ValidationError(customerMessage = "Authorization header not found"))
+          .mapError(e=> Response.json(e.toJson).status(Status.BadRequest))
     }
   })

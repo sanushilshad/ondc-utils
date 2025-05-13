@@ -19,6 +19,7 @@ import zio.config.magnolia.*
 import zio.{Config}
 import zio.config.ConfigOps
 import scala.compiletime.ops.string
+import scala.collection.mutable.HashMap
 
 
 // @snakeCase
@@ -91,3 +92,83 @@ object GenericSuccess:
 // }
 
 
+
+
+
+
+
+final case class FetchCountryBody(query: Option[String]) derives Schema
+
+
+
+object FetchCountryBody:
+  implicit val fetchCountryBodyDecoder: JsonDecoder[FetchCountryBody] = DeriveJsonDecoder.gen[FetchCountryBody]
+  implicit val fetchCountryBodyEncoder: JsonEncoder[FetchCountryBody] = DeriveJsonEncoder.gen[FetchCountryBody]
+
+
+// case class countryMapData(label: String, key: String)
+
+// val countryMapping: Map[String, String] = Map(
+//   "Afghanistan"         → "AFG",
+//   "India"               → "IND",
+//   "Singapore"           → "SGP"
+//   )
+
+
+
+// val countryMapping: Map[String, countryMapData] = Map(
+//   "Afghanistan"         → countryMapData(label= "Afghanistan", key= "AFG"),
+//   "India"               → countryMapData(label= "India", key= "IND"),
+//   "Singapore"           → countryMapData(label= "Singapore", key= "SGP"),
+//   )
+
+
+
+// sealed abstract class Country(val label: String, val code: String)  derives Schema, JsonCodec
+
+
+// object Country {
+//   case object Afghanistan extends Country("Afghanistan", "AFG")
+//   case object India       extends Country("India",       "IND")
+//   case object Singapore   extends Country("Singapore",   "SGP")
+//   // … add the rest here …
+
+//   // 2) A single source‑of‑truth list
+//   val values: List[Country] =
+//     List(Afghanistan, India, Singapore /*, …*/)
+
+//   // 3) Derived lookup maps
+//   lazy val byLabel: Map[String, Country] =
+//     values.iterator.map(c => c.label -> c).toMap
+
+//   lazy val byCode: Map[String, Country] =
+//     values.iterator.map(c => c.code  -> c).toMap
+// }
+
+// case class countryMapData(label: String, key: String) derives  JsonCodec, Schema
+
+
+
+enum Country(val label: String, val code: String) derives Schema, JsonCodec:
+  case Afghanistan extends Country("Afghanistan", "AFG")
+  case India       extends Country("India",       "IND")
+  case Singapore   extends Country("Singapore",   "SGP")
+  // … add the rest here …
+
+object Country:
+  // `values` is provided by Scala 3 enums
+  private val all: List[Country] = values.toList
+
+  // Derived lookup maps
+  lazy val byLabel: Map[String, Country] = all.map(c => c.label -> c).toMap
+  lazy val byCode:  Map[String, Country] = all.map(c => c.code  -> c).toMap
+
+case class countryMapData(label: String, code: String) derives  JsonCodec, Schema
+// object CountryDto:
+//   implicit val codec: JsonCodec[CountryDto] = DeriveJsonCodec.gen
+//   implicit val schema: Schema[CountryDto]   = Schema.CaseClass2(
+//     "CountryDto",
+//     Schema.Field("label", Schema[String], _.label),
+//     Schema.Field("code",  Schema[String], _.code),
+//     (lbl, cd) => CountryDto(lbl, cd)
+//   )

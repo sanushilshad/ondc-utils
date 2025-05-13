@@ -26,10 +26,10 @@ sealed trait GenericError extends GenericResponse[Nothing] derives  JsonCodec:
   override val data: Option[Nothing] = None
 
 object GenericError:
-  final case class DataNotFound(code: Int = Status.NotFound.code, customerMessage: String) extends GenericError
-  final case class ValidationError(code: Int = Status.BadRequest.code, customerMessage: String) extends GenericError
-  final case class UnexpectedError(code: Int = Status.InternalServerError.code, customerMessage: String) extends GenericError
-
+  final case class DataNotFound(code: Int = Status.NotFound.code, customerMessage: String) extends GenericError derives JsonCodec
+  final case class ValidationError(code: Int = Status.BadRequest.code, customerMessage: String) extends GenericError derives JsonCodec
+  final case class UnexpectedError(code: Int = Status.InternalServerError.code, customerMessage: String) extends GenericError derives JsonCodec
+  
   given Schema[DataNotFound] = DeriveSchema.gen[DataNotFound]
   given Schema[ValidationError] = DeriveSchema.gen[ValidationError]
   given Schema[UnexpectedError] = DeriveSchema.gen[UnexpectedError]

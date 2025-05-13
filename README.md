@@ -64,9 +64,9 @@ sbt ~reStart
 * [x] Integrate OpenAPI swagger documentation.
 * [x] Develop Health check API.
 * [x] Add URL fetch API.
-* [ ] Add authorization middleware connecting to user micro-service.
+* [x] Add authorization middleware connecting to user micro-service.
+* [x] Country Fetch API.
 * [ ] Override default error message for request body validation error.
-* [ ] Country Fetch API.
 * [ ] City Fetch API.
 * [ ] Category Fetch API.
 * [ ] Domain Fetch API.
