@@ -30,7 +30,9 @@ def settingsApp = Seq(
     zioConfig,
     zioMagnolia,
     zioTypeSafe,
-    jWT
+    jWT,
+    getQuill,
+    postgresQuill
   ),
 )
 

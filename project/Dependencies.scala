@@ -21,5 +21,7 @@ object Dependencies {
   val zioTypeSafe  = "dev.zio" %% "zio-config-typesafe" % "4.0.2"
   val zioMagnolia= "dev.zio" %% "zio-config-magnolia" % "4.0.3"
   val jWT = "com.github.jwt-scala" %% "jwt-zio-json" % "10.0.0"
+  val getQuill = "io.getquill"          %% "quill-jdbc-zio" % "4.8.5"
+  val postgresQuill =   "org.postgresql"       %  "postgresql"     % "42.3.1"
  
 }

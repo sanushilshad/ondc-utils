@@ -5,9 +5,12 @@ import zio.telemetry.opentelemetry.tracing.Tracing
 import io.opentelemetry.api.trace.{Span, SpanKind}
 import io.opentelemetry.api.GlobalOpenTelemetry
 import zio.http.Status
-
-
-
+import io.getquill.jdbczio.Quill
+import io.getquill.SnakeCase
+import io.getquill.SqlMirrorContext
+import io.getquill.MirrorSqlDialect
+import io.getquill.Literal
+import io.getquill._
 object MainHandlers {
   val healthCheckRequest: UIO[Dom] = ZIO.succeed(Dom.text("Running Server"))
 
@@ -45,7 +48,7 @@ object MainHandlers {
           all        = Country.values.toList
 
           filtered   = body.query.fold(all.take(10)) { q =>
-                          all.filter(c => c.label.equalsIgnoreCase(q) || c.code.equalsIgnoreCase(q)) match {
+                          all.filter(c => c.label.equalsIgnoreCase(q)) match {
                             case Nil     => all.filter(_.label.toLowerCase.contains(q.toLowerCase)).take(10)
                             case exact   => exact
                           }
@@ -64,5 +67,45 @@ object MainHandlers {
               customerMessage = "Successfully fetched data",
               data            = Some(countries)
               )
+
+
+  def fetchCategoryRequest(
+    body: FetchCategoryRequest
+  ): ZIO[Tracing & AppConfig & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Category]]] = 
+    for {
+      tracing <- ZIO.service[Tracing]
+      result <- tracing.span("fetch-category-request", SpanKind.SERVER) {
+        ZIO.serviceWithZIO[Quill.Postgres[SnakeCase]] { ctx =>
+          {
+            import ctx._
+
+            val q = body.query match {
+              case Some(queryStr) =>
+                val pattern = "%" + queryStr.toLowerCase + "%"
+                quote {
+                  CategoryModel.categorySchema.filter(c =>
+                    c.label.toLowerCase.like(lift(pattern))
+                  )
+                }
+              case None =>
+                quote {
+                  CategoryModel.categorySchema
+                }
+            }
+
+            ctx.run(q)
+              .map(_.map(c => Category(c.label, c.code, c.image, c.domainCode)))
+              .tap(a => tracing.addEvent(s"Fetched categories: $a"))
+              .map(a => GenericSuccess.SuccessResponse(customerMessage = "Successfully fetched data", data = Some(a)))
+              .mapError(e => GenericError.UnexpectedError(customerMessage = e.toString))
+          }
+        }
+      }
+    } yield result
+
+
+
+
+
 
 }

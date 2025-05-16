@@ -9,6 +9,8 @@ import com.placeorder.ondc_utils.Config.loadConfig
 import zio.telemetry.opentelemetry.baggage.Baggage
 import zio.telemetry.opentelemetry.baggage.propagation.BaggagePropagator
 import zio.http.netty.NettyConfig
+import io.getquill.jdbczio.Quill
+import io.getquill.SnakeCase
 object MainApp extends ZIOAppDefault {
 
   private val instrumentationScopeName = "com.placeorder.ondc_utils"
@@ -28,7 +30,10 @@ object MainApp extends ZIOAppDefault {
           OpenTelemetry.baggage(),
           appLayer,
           Client.default,
-          UserClient.live
+          UserClient.live,
+          Quill.Postgres.fromNamingStrategy(SnakeCase),
+          DatabaseConfig.makeDataSourceLive 
+          // databaseLayer
           // ZLayer.Debug.mermaid
         )
     }.catchAll { error =>

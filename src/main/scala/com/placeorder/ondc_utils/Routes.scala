@@ -16,13 +16,15 @@ import zio.http.Status
 import zio.http.codec.HttpCodecError
 import zio.http.Status.ClientError
 import zio.json.EncoderOps
+import io.getquill.jdbczio.Quill
+import io.getquill.SnakeCase
 
 
 
 
 object MainRoutes {
 
-    def apply(): Routes[Tracing & Baggage & AppConfig & UserClient,  Response] = {
+    def apply(): Routes[Tracing & Baggage & AppConfig & UserClient & Quill.Postgres[SnakeCase],  Response] = {
 
         val healthCheckEndpoint = Endpoint(Method.GET / "health_check").out[Dom](Doc.p("Successful execution")) ?? Doc.p("API for checking the status of the server")
         val ONDCURLPoint = Endpoint(Method.POST / "url")
@@ -34,13 +36,23 @@ object MainRoutes {
             HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for fetching all URLs required by UI") 
 
-        val countryListPoint = Endpoint(Method.POST / "country/").in[FetchCountryBody]
+        val countryListPoint = Endpoint(Method.POST / "country").in[FetchCountryBody]
         .out[GenericSuccess[List[countryMapData]]](Doc.p("Successful execution"))
         .outErrors(
             HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
             HttpCodec.error[GenericError.ValidationError](Status.BadRequest) ?? Doc.p("Bad Request"),
             HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for listing  countries") 
+
+        val categoryFetchtPoint = Endpoint(Method.POST / "category").in[FetchCategoryRequest]
+        .out[GenericSuccess[List[Category]]](Doc.p("Successful execution"))
+        .outErrors(
+            HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
+            HttpCodec.error[GenericError.ValidationError](Status.BadRequest) ?? Doc.p("Bad Request"),
+            HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
+        ) ?? Doc.p("API for fetching categories") 
+
+    
 
         val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCURLPoint, countryListPoint)
 
@@ -55,6 +67,9 @@ object MainRoutes {
             // case body  =>
             //     MainHandlers.fetchURLRequest(body)
             MainHandlers.fetchCountryRequest
+        }.toRoutes.@@(bearerAuthWithContext) ++
+        categoryFetchtPoint.implement { 
+            MainHandlers.fetchCategoryRequest
         }.toRoutes.@@(bearerAuthWithContext) ++
         SwaggerUI.routes("/docs", openApi)
 

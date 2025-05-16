@@ -66,9 +66,10 @@ sbt ~reStart
 * [x] Add URL fetch API.
 * [x] Add authorization middleware connecting to user micro-service.
 * [x] Country Fetch API.
+* [x] Integrate database.
+* [x] Category Fetch API.
 * [ ] Override default error message for request body validation error.
 * [ ] City Fetch API.
-* [ ] Category Fetch API.
 * [ ] Domain Fetch API.
 * [ ] Category Attribute Fetch API.
 * [ ] Develop application release Script.

@@ -10,6 +10,14 @@ import zio.{Config as ZioConfig}
 import zio.config.magnolia.derived
 import zio.config.magnolia.deriveConfigFromConfig
 import scala.compiletime.ops.string
+import zio.ZLayer
+import io.getquill.jdbczio.Quill
+import io.getquill.SnakeCase
+import org.postgresql.ds.PGSimpleDataSource
+import javax.sql.DataSource
+import com.zaxxer.hikari.HikariDataSource
+import com.zaxxer.hikari.HikariConfig
+
 // enum NPType(val a: String) derives JsonEncoder{
 //   case BuyerApp extends NPType("buyer_app")
 //   case SellerApp extends NPType("seller_app")
@@ -38,6 +46,45 @@ case class UserSetting(
   token: String
 )
 
+case class DatabaseConfig(
+  username: String,
+  password: String,
+  port: Int,
+  host: String,
+  name: String
+)
+
+object DatabaseConfig {
+  // val makeDataSource: ZIO[AppConfig, Throwable, DataSource] =
+  //   ZIO.serviceWith[AppConfig] { cfg =>
+  //     val ds = new PGSimpleDataSource()
+  //     ds.setServerNames(Array(cfg.database.host))
+  //     ds.setPortNumbers(Array(cfg.database.port))
+  //     ds.setDatabaseName(cfg.database.name)
+  //     ds.setUser(cfg.database.username)
+  //     ds.setPassword(cfg.database.password)
+  //     ds
+  //   }
+
+  // val makeDataSourceLive: ZLayer[AppConfig, Throwable, DataSource] =
+  //   ZLayer.fromZIO(makeDataSource)
+
+
+  val makeDataSource: ZIO[AppConfig, Throwable, DataSource] =
+    ZIO.serviceWith[AppConfig] { cfg =>
+      val hikariConfig = new HikariConfig()
+      hikariConfig.setJdbcUrl(s"jdbc:postgresql://${cfg.database.host}:${cfg.database.port}/${cfg.database.name}")
+      hikariConfig.setUsername(cfg.database.username)
+      hikariConfig.setPassword(cfg.database.password)
+      hikariConfig.setMaximumPoolSize(10) // You can adjust this
+      hikariConfig.setMinimumIdle(2)
+
+      new HikariDataSource(hikariConfig)
+    }
+
+  val makeDataSourceLive: ZLayer[AppConfig, Throwable, DataSource] =
+    ZLayer.fromZIO(makeDataSource)
+}
 
 
 case class AppConfig(
@@ -46,6 +93,8 @@ case class AppConfig(
   tracing: TracingSetting,
   user: UserSetting,
   urlMapping: Map[String, UrlMapping],
+  database: DatabaseConfig,
+
 
 )
 

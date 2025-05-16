@@ -97,13 +97,13 @@ object GenericSuccess:
 
 
 
-final case class FetchCountryBody(query: Option[String]) derives Schema
+final case class FetchCountryBody(query: Option[String]) derives Schema, JsonCodec
 
 
 
-object FetchCountryBody:
-  implicit val fetchCountryBodyDecoder: JsonDecoder[FetchCountryBody] = DeriveJsonDecoder.gen[FetchCountryBody]
-  implicit val fetchCountryBodyEncoder: JsonEncoder[FetchCountryBody] = DeriveJsonEncoder.gen[FetchCountryBody]
+// object FetchCountryBody:
+//   implicit val fetchCountryBodyDecoder: JsonDecoder[FetchCountryBody] = DeriveJsonDecoder.gen[FetchCountryBody]
+//   implicit val fetchCountryBodyEncoder: JsonEncoder[FetchCountryBody] = DeriveJsonEncoder.gen[FetchCountryBody]
 
 
 // case class countryMapData(label: String, key: String)
@@ -171,4 +171,12 @@ case class countryMapData(label: String, code: String) derives  JsonCodec, Schem
 //     Schema.Field("label", Schema[String], _.label),
 //     Schema.Field("code",  Schema[String], _.code),
 //     (lbl, cd) => CountryDto(lbl, cd)
+
 //   )
+
+
+
+case class FetchCategoryRequest(query: Option[String]) derives Schema, JsonCodec
+
+
+case class Category(label: String, code: String, image: String, domainCode: String) derives  JsonCodec, Schema
