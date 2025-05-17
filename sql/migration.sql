@@ -1,6 +1,18 @@
+
+CREATE TABLE IF NOT EXISTS domain (
+    id SERIAL NOT NULL PRIMARY KEY,
+    code TEXT NOT NULL,
+    label TEXT NOT NULL,
+    image TEXT NOT NULL,
+    created_on TIMESTAMPTZ NOT NULL 
+);
+
+ALTER TABLE domain ADD CONSTRAINT uq_domain UNIQUE (code);
+
+
 CREATE TABLE IF NOT EXISTS category (
     id SERIAL NOT NULL PRIMARY KEY,
-    domain_code TEXT NOT NULL,
+    domain_id INTEGER NOT NULL,
     code TEXT NOT NULL,
     label TEXT NOT NULL,
     image TEXT NOT NULL,
@@ -8,4 +20,5 @@ CREATE TABLE IF NOT EXISTS category (
 );
 
 
-ALTER TABLE category ADD CONSTRAINT unique_domain_code UNIQUE (domain_code, code);
+ALTER TABLE category ADD CONSTRAINT uq_category UNIQUE (domain_id, code);
+ALTER TABLE category ADD CONSTRAINT fk_category_domain FOREIGN KEY (domain_id) REFERENCES domain(id) ON DELETE CASCADE;

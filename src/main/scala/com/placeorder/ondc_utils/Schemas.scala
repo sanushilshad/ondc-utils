@@ -158,25 +158,20 @@ enum Country(val label: String, val code: String) derives Schema, JsonCodec:
 object Country:
   // `values` is provided by Scala 3 enums
   private val all: List[Country] = values.toList
-
-  // Derived lookup maps
   lazy val byLabel: Map[String, Country] = all.map(c => c.label -> c).toMap
   lazy val byCode:  Map[String, Country] = all.map(c => c.code  -> c).toMap
 
 case class countryMapData(label: String, code: String) derives  JsonCodec, Schema
-// object CountryDto:
-//   implicit val codec: JsonCodec[CountryDto] = DeriveJsonCodec.gen
-//   implicit val schema: Schema[CountryDto]   = Schema.CaseClass2(
-//     "CountryDto",
-//     Schema.Field("label", Schema[String], _.label),
-//     Schema.Field("code",  Schema[String], _.code),
-//     (lbl, cd) => CountryDto(lbl, cd)
-
-//   )
 
 
 
-case class FetchCategoryRequest(query: Option[String]) derives Schema, JsonCodec
+
+
+case class FetchCategoryRequest(query: Option[String], categoryCodeList: Option[List[String]],  domainCode: String) derives Schema, JsonCodec
 
 
 case class Category(label: String, code: String, image: String, domainCode: String) derives  JsonCodec, Schema
+
+
+case class FetchDomainRequest(query: Option[String]) derives Schema, JsonCodec
+case class Domain(label: String, code: String, image: String) derives  JsonCodec, Schema

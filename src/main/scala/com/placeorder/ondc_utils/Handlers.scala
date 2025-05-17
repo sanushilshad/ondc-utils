@@ -71,41 +71,86 @@ object MainHandlers {
 
   def fetchCategoryRequest(
     body: FetchCategoryRequest
-  ): ZIO[Tracing & AppConfig & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Category]]] = 
+  ): ZIO[Tracing & AppConfig & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Category]]] =
     for {
       tracing <- ZIO.service[Tracing]
       result <- tracing.span("fetch-category-request", SpanKind.SERVER) {
         ZIO.serviceWithZIO[Quill.Postgres[SnakeCase]] { ctx =>
-          {
-            import ctx._
+          import ctx._
 
-            val q = body.query match {
-              case Some(queryStr) =>
-                val pattern = "%" + queryStr.toLowerCase + "%"
-                quote {
-                  CategoryModel.categorySchema.filter(c =>
-                    c.label.toLowerCase.like(lift(pattern))
-                  )
-                }
-              case None =>
-                quote {
-                  CategoryModel.categorySchema
-                }
-            }
-
-            ctx.run(q)
-              .map(_.map(c => Category(c.label, c.code, c.image, c.domainCode)))
-              .tap(a => tracing.addEvent(s"Fetched categories: $a"))
-              .map(a => GenericSuccess.SuccessResponse(customerMessage = "Successfully fetched data", data = Some(a)))
-              .mapError(e => GenericError.UnexpectedError(customerMessage = e.toString))
+          // Define domain + category join and filter by domain.code
+          val baseQuery = quote {
+            for {
+              c <- CategoryModel.schema
+              d <- DomainModel.schema if c.domain_id == d.id && d.code == lift(body.domainCode)
+            } yield c
           }
+
+          // Filter by query string
+          val filteredByQuery = body.query match {
+            case Some(queryStr) =>
+              val pattern = "%" + queryStr.toLowerCase + "%"
+              quote {
+                baseQuery.filter(c => c.label.toLowerCase.like(lift(pattern)))
+              }
+            case None => baseQuery
+          }
+
+          // Filter by categoryCodeList
+          val filteredFinal = body.categoryCodeList match {
+            case Some(codes) if codes.nonEmpty =>
+              quote {
+                filteredByQuery.filter(c => liftQuery(codes).contains(c.code))
+              }
+            case _ => filteredByQuery
+          }
+
+          ctx.run(filteredFinal)
+            .map(_.map(c => Category(c.label, c.code, c.image, body.domainCode)))
+            .tap(cats => tracing.addEvent(s"Fetched categories: $cats"))
+            .map(cats => GenericSuccess.SuccessResponse(
+                customerMessage = "Successfully fetched data",
+                data = Some(cats)
+              ))
+            .mapError(e => GenericError.UnexpectedError(customerMessage = e.toString))
         }
       }
     } yield result
 
 
+  def fetchDomainRequest(
+    body: FetchDomainRequest
+  ): ZIO[Tracing & AppConfig & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Domain]]] =
+    for {
+      tracing <- ZIO.service[Tracing]
+      result <- tracing.span("fetch-category-request", SpanKind.SERVER) {
+        ZIO.serviceWithZIO[Quill.Postgres[SnakeCase]] { ctx =>
+          import ctx._
+
+          val baseQuery = quote {
+            DomainModel.schema
+          }
+
+          // Filter by query string
+          val filteredByQuery = body.query match {
+            case Some(queryStr) =>
+              val pattern = "%" + queryStr.toLowerCase + "%"
+              quote {
+                baseQuery.filter(c => c.label.toLowerCase.like(lift(pattern)))
+              }
+            case None => baseQuery
+          }
 
 
-
-
+          ctx.run(filteredByQuery)
+            .map(_.map(c => Domain(c.label, c.code, c.image)))
+            .tap(cats => tracing.addEvent(s"Fetched categories: $cats"))
+            .map(cats => GenericSuccess.SuccessResponse(
+                customerMessage = "Successfully fetched data",
+                data = Some(cats)
+              ))
+            .mapError(e => GenericError.UnexpectedError(customerMessage = e.toString))
+        }
+      }
+    } yield result
 }

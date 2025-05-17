@@ -58,7 +58,7 @@ sbt ~reStart
 }
 ```
 
-## MILESTONES
+## MILESTONE 1:
 * [x] Set up basic scala project.
 * [x] Integrate tracing.
 * [x] Integrate OpenAPI swagger documentation.
@@ -68,9 +68,13 @@ sbt ~reStart
 * [x] Country Fetch API.
 * [x] Integrate database.
 * [x] Category Fetch API.
+* [x] Domain Fetch API.
 * [ ] Override default error message for request body validation error.
+* [ ] JWT token generation and verification
+* [ ] Custom command generation (Migration + JWT token geneation)
 * [ ] City Fetch API.
-* [ ] Domain Fetch API.
-* [ ] Category Attribute Fetch API.
 * [ ] Develop application release Script.
 * [ ] Develop application restart Script.
+
+## MILESTONE 2 (OPTIONAL):
+* [ ] Category Attribute Fetch API.

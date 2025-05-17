@@ -1,0 +1,1 @@
+INSERT INTO domain(id, code, label, image, created_on) values(1, 'RET10', 'Grocery', 'https://placeorder.s3.ap-southeast-1.amazonaws.com/prod/images/category_images/Grocery.jpeg', '2025-05-18 10:50:06.209000+00:00')

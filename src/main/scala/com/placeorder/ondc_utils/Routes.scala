@@ -26,7 +26,7 @@ object MainRoutes {
 
     def apply(): Routes[Tracing & Baggage & AppConfig & UserClient & Quill.Postgres[SnakeCase],  Response] = {
 
-        val healthCheckEndpoint = Endpoint(Method.GET / "health_check").out[Dom](Doc.p("Successful execution")) ?? Doc.p("API for checking the status of the server")
+        val healthCheckEndpoint = Endpoint(Method.GET / "health").out[Dom](Doc.p("Successful execution")) ?? Doc.p("API for checking the status of the server")
         val ONDCURLPoint = Endpoint(Method.POST / "url")
         .in[FetchURLBody]
         .out[GenericSuccess[Map[String, String]]](Doc.p("Successful execution"))
@@ -36,7 +36,7 @@ object MainRoutes {
             HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for fetching all URLs required by UI") 
 
-        val countryListPoint = Endpoint(Method.POST / "country").in[FetchCountryBody]
+        val countryListPoint = Endpoint(Method.POST / "country/fetch").in[FetchCountryBody]
         .out[GenericSuccess[List[countryMapData]]](Doc.p("Successful execution"))
         .outErrors(
             HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
@@ -44,7 +44,7 @@ object MainRoutes {
             HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for listing  countries") 
 
-        val categoryFetchtPoint = Endpoint(Method.POST / "category").in[FetchCategoryRequest]
+        val categoryFetchtPoint = Endpoint(Method.POST / "category/fetch").in[FetchCategoryRequest]
         .out[GenericSuccess[List[Category]]](Doc.p("Successful execution"))
         .outErrors(
             HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
@@ -53,8 +53,15 @@ object MainRoutes {
         ) ?? Doc.p("API for fetching categories") 
 
     
+        val domainFetchtPoint =  Endpoint(Method.POST / "domain/fetch").in[FetchDomainRequest]
+        .out[GenericSuccess[List[Domain]]](Doc.p("Successful execution"))
+        .outErrors(
+            HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
+            HttpCodec.error[GenericError.ValidationError](Status.BadRequest) ?? Doc.p("Bad Request"),
+            HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
+        ) ?? Doc.p("API for fetching domains") 
 
-        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCURLPoint, countryListPoint)
+        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCURLPoint, countryListPoint, categoryFetchtPoint, domainFetchtPoint)
 
         val routes = healthCheckEndpoint.implement { 
             case _ =>
@@ -70,6 +77,9 @@ object MainRoutes {
         }.toRoutes.@@(bearerAuthWithContext) ++
         categoryFetchtPoint.implement { 
             MainHandlers.fetchCategoryRequest
+        }.toRoutes.@@(bearerAuthWithContext) ++
+        domainFetchtPoint.implement { 
+            MainHandlers.fetchDomainRequest
         }.toRoutes.@@(bearerAuthWithContext) ++
         SwaggerUI.routes("/docs", openApi)
 
