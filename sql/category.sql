@@ -1,1 +1,1 @@
-INSERT INTO category(id, domain_id, code, label, image, created_on) values(1, 1, 'RET10-130', 'Flour & Grains', 'https://staticrapidor.rapidor.co/static/media/product_images/rsfp.rapidor.co/MOTA-BESAN-01KG.png', '2025-05-18 10:50:06.209000+00:00')
+INSERT INTO category(id, domain_id, code, label, image, created_on) values(1, 1, 'RET10-130', 'Flour & Grains', 'https://staticrapidor.rapidor.co/static/media/product_images/rsfp.rapidor.co/MOTA-BESAN-01KG.png', '2025-05-18 10:50:06.209000+00:00');

@@ -69,12 +69,13 @@ sbt ~reStart
 * [x] Integrate database.
 * [x] Category Fetch API.
 * [x] Domain Fetch API.
-* [ ] Override default error message for request body validation error.
-* [ ] JWT token generation and verification
-* [ ] Custom command generation (Migration + JWT token geneation)
 * [ ] City Fetch API.
+* [ ] JWT token generation and verification
+* [ ] Custom command generation (Migration + JWT token geneation).
+* [ ] Override default error message for request body validation error.
 * [ ] Develop application release Script.
 * [ ] Develop application restart Script.
 
 ## MILESTONE 2 (OPTIONAL):
 * [ ] Category Attribute Fetch API.
+* [ ] Add test cases.

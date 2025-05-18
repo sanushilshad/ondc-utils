@@ -1,0 +1,1 @@
+INSERT INTO state(id, label, code, country_code, created_on) values(1, 'KERALA', 'KL', 'IND', '2025-05-18 10:50:06.209000+00:00');

@@ -38,7 +38,7 @@ object MainHandlers {
     } yield GenericSuccess.SuccessResponse(customerMessage="Successfully fetched data", data= Some(response))
 
 
-  def fetchCountryRequest(body: FetchCountryBody): ZIO[Tracing & AppConfig, GenericError, GenericSuccess[List[countryMapData]]] =
+  def fetchCountryRequest(body: FetchCountryBody): ZIO[Tracing, GenericError, GenericSuccess[List[countryMapData]]] =
     for {
       tracing   <- ZIO.service[Tracing]                       // 1) grab Tracing
       countries <- tracing.span("fetch-country-request", SpanKind.SERVER) {
@@ -71,7 +71,7 @@ object MainHandlers {
 
   def fetchCategoryRequest(
     body: FetchCategoryRequest
-  ): ZIO[Tracing & AppConfig & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Category]]] =
+  ): ZIO[Tracing & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Category]]] =
     for {
       tracing <- ZIO.service[Tracing]
       result <- tracing.span("fetch-category-request", SpanKind.SERVER) {
@@ -120,10 +120,10 @@ object MainHandlers {
 
   def fetchDomainRequest(
     body: FetchDomainRequest
-  ): ZIO[Tracing & AppConfig & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Domain]]] =
+  ): ZIO[Tracing & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[Domain]]] =
     for {
       tracing <- ZIO.service[Tracing]
-      result <- tracing.span("fetch-category-request", SpanKind.SERVER) {
+      result <- tracing.span("fetch-domain-request", SpanKind.SERVER) {
         ZIO.serviceWithZIO[Quill.Postgres[SnakeCase]] { ctx =>
           import ctx._
 
@@ -144,7 +144,7 @@ object MainHandlers {
 
           ctx.run(filteredByQuery)
             .map(_.map(c => Domain(c.label, c.code, c.image)))
-            .tap(cats => tracing.addEvent(s"Fetched categories: $cats"))
+            .tap(cats => tracing.addEvent(s"Fetched domain: $cats"))
             .map(cats => GenericSuccess.SuccessResponse(
                 customerMessage = "Successfully fetched data",
                 data = Some(cats)
@@ -153,4 +153,58 @@ object MainHandlers {
         }
       }
     } yield result
+
+
+  def fetchStateRequest(
+    body: FetchStateRequest
+  ): ZIO[Tracing & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[State]]] =
+    for {
+      tracing <- ZIO.service[Tracing]
+      result <- tracing.span("fetch-state-request", SpanKind.SERVER) {
+        ZIO.serviceWithZIO[Quill.Postgres[SnakeCase]] { ctx =>
+          import ctx._
+          
+          val filteredByQuery = body.countryCode match {
+            case Some(queryStr) =>
+              quote {
+                StateModel.schema.filter(_.countryCode == lift(queryStr))
+              }
+            case None => quote{
+              StateModel.schema
+            }
+          }
+
+          body.query match {
+              case Some(queryStr) =>
+                val pattern = "%" + queryStr.toLowerCase + "%"
+                quote {
+
+                  filteredByQuery.filter(_.label.toLowerCase.like(lift(pattern)))
+                }
+
+              case None =>
+                filteredByQuery
+            }
+
+          ctx.run(filteredByQuery)
+            .map(_.map(c => State(c.label, c.code, c.countryCode)))
+            .tap(states => tracing.addEvent(s"Fetched states: $states"))
+            .map(states =>
+              GenericSuccess.SuccessResponse(
+                customerMessage = "Successfully fetched data",
+                data = Some(states)
+              )
+            )
+            .mapError(e => GenericError.UnexpectedError(customerMessage = e.toString))
+        }
+      }
+    } yield result
+
+
+
 }
+
+
+
+
+

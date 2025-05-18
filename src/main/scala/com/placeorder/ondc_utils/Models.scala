@@ -23,3 +23,15 @@ object DomainModel{
       }
 
 }
+
+
+
+final case class StateModel(id: Int, label: String, code:String, countryCode: String)
+
+
+object StateModel{
+    val  schema = quote {
+        querySchema[StateModel]("state")
+      }
+
+}

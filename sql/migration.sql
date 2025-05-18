@@ -22,3 +22,13 @@ CREATE TABLE IF NOT EXISTS category (
 
 ALTER TABLE category ADD CONSTRAINT uq_category UNIQUE (domain_id, code);
 ALTER TABLE category ADD CONSTRAINT fk_category_domain FOREIGN KEY (domain_id) REFERENCES domain(id) ON DELETE CASCADE;
+
+
+CREATE TABLE IF NOT EXISTS state (
+    id SERIAL NOT NULL PRIMARY KEY,
+    label TEXT NOT NULL,
+    code TEXT NOT NULL,
+    country_code TEXT NOT NULL,
+    created_on TIMESTAMPTZ NOT NULL 
+);
+ALTER TABLE state ADD CONSTRAINT uq_state UNIQUE (country_code, code);

@@ -61,7 +61,15 @@ object MainRoutes {
             HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
         ) ?? Doc.p("API for fetching domains") 
 
-        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCURLPoint, countryListPoint, categoryFetchtPoint, domainFetchtPoint)
+        val stateFetchtPoint =  Endpoint(Method.POST / "state/fetch").in[FetchStateRequest]
+        .out[GenericSuccess[List[State]]](Doc.p("Successful execution"))
+        .outErrors(
+            HttpCodec.error[GenericError.UnexpectedError](Status.InternalServerError)?? Doc.p("Internal Server Error"),
+            HttpCodec.error[GenericError.ValidationError](Status.BadRequest) ?? Doc.p("Bad Request"),
+            HttpCodec.error[GenericError.DataNotFound](Status.NotFound) ?? Doc.p("Data not found"),
+        ) ?? Doc.p("API for fetching states") 
+
+        val openApi = OpenAPIGen.fromEndpoints("ONDC Util API", "1.0.0", healthCheckEndpoint, ONDCURLPoint, countryListPoint, categoryFetchtPoint, domainFetchtPoint, stateFetchtPoint)
 
         val routes = healthCheckEndpoint.implement { 
             case _ =>
@@ -80,6 +88,9 @@ object MainRoutes {
         }.toRoutes.@@(bearerAuthWithContext) ++
         domainFetchtPoint.implement { 
             MainHandlers.fetchDomainRequest
+        }.toRoutes.@@(bearerAuthWithContext) ++
+        stateFetchtPoint.implement { 
+            MainHandlers.fetchStateRequest
         }.toRoutes.@@(bearerAuthWithContext) ++
         SwaggerUI.routes("/docs", openApi)
 
