@@ -69,7 +69,8 @@ sbt ~reStart
 * [x] Integrate database.
 * [x] Category Fetch API.
 * [x] Domain Fetch API.
-* [ ] City Fetch API.
+* [x] City Fetch API.
+* [x] State Fetch API.
 * [ ] JWT token generation and verification
 * [ ] Custom command generation (Migration + JWT token geneation).
 * [ ] Override default error message for request body validation error.

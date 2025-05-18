@@ -179,3 +179,8 @@ case class Domain(label: String, code: String, image: String) derives  JsonCodec
 
 case class FetchStateRequest(query: Option[String], countryCode: Option[String]) derives Schema, JsonCodec
 case class State(label: String, code: String, countryCode: String) derives  JsonCodec, Schema
+
+
+case class FetchCityRequest(query: Option[String], stateCode: String) derives Schema, JsonCodec
+
+case class City(label: String, code: String, pincode: String) derives  JsonCodec, Schema

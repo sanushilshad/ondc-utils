@@ -202,6 +202,49 @@ object MainHandlers {
 
 
 
+  def fetchCityRequest(
+    body: FetchCityRequest
+  ): ZIO[Tracing & Quill.Postgres[SnakeCase], GenericError, GenericSuccess[List[City]]] =
+    for {
+      tracing <- ZIO.service[Tracing]
+      result <- tracing.span("fetch-city-request", SpanKind.SERVER) {
+        ZIO.serviceWithZIO[Quill.Postgres[SnakeCase]] { ctx =>
+          import ctx._
+          
+
+          val baseQuery = quote {
+            for {
+              c <- CityModel.schema
+              d <- StateModel.schema if c.state_id == d.id && d.code == lift(body.stateCode)
+            } yield c
+          }
+
+          val filteredFinal = body.query match {
+              case Some(queryStr) =>
+                val pattern = "%" + queryStr.toLowerCase + "%"
+                quote {
+
+                  baseQuery.filter(_.label.toLowerCase.like(lift(pattern)))
+                }
+
+              case None =>
+                baseQuery
+            }
+
+          ctx.run(filteredFinal)
+            .map(_.map(c => City(c.label, c.code, c.pincode)))
+            .tap(states => tracing.addEvent(s"Fetched city: $states"))
+            .map(states =>
+              GenericSuccess.SuccessResponse(
+                customerMessage = "Successfully fetched data",
+                data = Some(states)
+              )
+            )
+            .mapError(e => GenericError.UnexpectedError(customerMessage = e.toString))
+        }
+      }
+    } yield result
+
 }
 
 

@@ -35,3 +35,16 @@ object StateModel{
       }
 
 }
+
+
+
+final case class CityModel(label: String, code: String, pincode: String, state_id: Int)
+
+
+object CityModel{
+    val  schema = quote {
+        querySchema[CityModel]("city")
+      }
+
+}
+

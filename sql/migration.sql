@@ -32,3 +32,17 @@ CREATE TABLE IF NOT EXISTS state (
     created_on TIMESTAMPTZ NOT NULL 
 );
 ALTER TABLE state ADD CONSTRAINT uq_state UNIQUE (country_code, code);
+
+
+
+CREATE TABLE IF NOT EXISTS city (
+    id SERIAL NOT NULL PRIMARY KEY,
+    label TEXT NOT NULL,
+    code TEXT NOT NULL,
+    pincode TEXT NOT NULL,
+    state_id  INTEGER NOT NULL,
+    created_on TIMESTAMPTZ NOT NULL 
+);
+
+ALTER TABLE city ADD CONSTRAINT uq_city UNIQUE (state_id, label, pincode);
+ALTER TABLE city ADD CONSTRAINT fk_city FOREIGN KEY (state_id) REFERENCES state(id) ON DELETE CASCADE;
