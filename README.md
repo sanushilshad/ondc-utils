@@ -73,10 +73,9 @@ sbt ~reStart
 * [x] State Fetch API.
 * [ ] JWT token generation and verification
 * [ ] Custom command generation (Migration + JWT token geneation).
-* [ ] Override default error message for request body validation error.
-* [ ] Develop application release Script.
-* [ ] Develop application restart Script.
+* [ ] Develop application release and restart Script.
 
 ## MILESTONE 2 (OPTIONAL):
+* [ ] Override default error message for request body validation error.
 * [ ] Category Attribute Fetch API.
 * [ ] Add test cases.
