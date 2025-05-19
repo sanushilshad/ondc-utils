@@ -6,10 +6,8 @@ import io.opentelemetry.api.trace.{Span, SpanKind}
 import io.opentelemetry.api.GlobalOpenTelemetry
 import zio.http.Status
 import io.getquill.jdbczio.Quill
-import io.getquill.SnakeCase
-import io.getquill.SqlMirrorContext
-import io.getquill.MirrorSqlDialect
-import io.getquill.Literal
+
+import io.getquill.{MirrorSqlDialect, Literal, SqlMirrorContext, SnakeCase}
 import io.getquill._
 object MainHandlers {
   val healthCheckRequest: UIO[Dom] = ZIO.succeed(Dom.text("Running Server"))

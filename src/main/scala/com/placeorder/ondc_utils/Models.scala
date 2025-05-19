@@ -1,7 +1,6 @@
 package com.placeorder.ondc_utils
 
-import io.getquill.PostgresZioJdbcContext
-import io.getquill.SnakeCase
+import io.getquill.{PostgresZioJdbcContext, SnakeCase}
 import io.getquill._
 final case class CategoryModel(id: Int, label: String, code:String, image: String, domain_id: Int)
 

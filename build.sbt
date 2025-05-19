@@ -12,7 +12,7 @@ ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / scalafixDependencies ++= List("com.github.liancheng" %% "organize-imports" % "0.6.0")
 
 def settingsApp = Seq(
-  name := "ondc-observability",
+  name := "ondc-utils",
   Compile / run / mainClass := Option("com.placeorder.ondc_utils.MainApp"),
   testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   libraryDependencies ++= Seq(
@@ -54,7 +54,7 @@ addCommandAlias("sFixCheck", "scalafix --check OrganizeImports; Test / scalafix 
 maintainer := "Sanu Shilshad <sanushilshad@gmail.com>"
 
 
-assemblyJarName in assembly := "ondc-observability-0.0.1.jar" 
+assemblyJarName in assembly := "ondc-utils-0.0.1.jar" 
 mergeStrategy in assembly := {
   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
   case _ => MergeStrategy.first

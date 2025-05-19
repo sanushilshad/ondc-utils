@@ -24,19 +24,51 @@ sbt ~reStart
 
 ```
 
+## CUSTOM COMMAND:
+
+  ### JWT GENERATION:
+  ```
+  sbt "~reStart  generate_jwt_token"
+  ```
+
 
 ## ENVIRONEMENT VARIABLES:
 
 ```
-    urlMapping = [
-        { id = "user", url = "xxxx"},
-        { npType = "websocket", "url"="xxx"}
 
-    ]
+urlMapping = {
+    "xxx.com": {url="xxx.com"}
+}
 
+application = {
     port = 5602
-    otelServiceName = "pre-prod-ondc-observability"
+    serviceId = "3ed42655-898a-4b08-b497-25d4151b47d8"
+}
+
+tracing = {
+    otelServiceName = "pre-prod-ondc-utils"
     otelExporterTracesEndpoint = "http://localhost:4317"
+}
+
+user = {
+    token = "eyJ1eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ1.eyJzdWIiOiI5YTNjMDkwOS1zYzVkLTRhODQtOGZiNi03MTkyOGUyOGNiNWIiLCJleHAiOjQ4ODYwNzkyODB2.PLd84JGX6BbelD5WYkdVDoLGXwlXRdp2zQED7jj2qrU"
+    url="http://localhost:8230"
+}
+
+database = {
+    username = "postgres"
+    password = "{{password}}"
+    port = "{{port}}"
+    host = "{{host}}"
+    name= "ondc_utils"
+}
+
+secret = {
+    jwt = {
+        key = "df"
+    }
+}
+
 ```
 
 ## VSCODE
@@ -71,8 +103,9 @@ sbt ~reStart
 * [x] Domain Fetch API.
 * [x] City Fetch API.
 * [x] State Fetch API.
-* [ ] JWT token generation and verification
-* [ ] Custom command generation (Migration + JWT token geneation).
+* [x] Custom command for JWT token geneation.
+* [ ] JWT token verification middleware.
+* [ ] Custom command for Migration.
 * [ ] Develop application release and restart Script.
 
 ## MILESTONE 2 (OPTIONAL):

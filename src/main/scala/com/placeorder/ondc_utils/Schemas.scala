@@ -8,11 +8,8 @@ import zio.http.Response
 import zio.http.Status
 import zio.schema._
 import zio.schema.Schema.Case
-import zio.schema.annotation.fieldName
-import zio.schema.annotation.caseName
-import zio.config.derivation.name
-import zio.config.derivation.describe
-import zio.config.derivation.snakeCase
+import zio.schema.annotation.{fieldName, caseName}
+import zio.config.derivation.{describe, snakeCase, name}
 import zio.config.magnolia.*
 // import zio.config.*
 
