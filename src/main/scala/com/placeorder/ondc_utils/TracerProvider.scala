@@ -9,6 +9,8 @@ import io.opentelemetry.sdk.trace.SdkTracerProvider
 import io.opentelemetry.semconv.ResourceAttributes
 import zio.{RIO, ZIO, Scope}
 import io.opentelemetry.sdk.trace.`export`.SimpleSpanProcessor
+import io.opentelemetry.exporter.logging.otlp.OtlpJsonLoggingSpanExporter
+import io.opentelemetry.semconv.ServiceAttributes
 
 object TracerProvider {
 
@@ -27,6 +29,22 @@ object TracerProvider {
             SdkTracerProvider
               .builder()
               .setResource(Resource.create(Attributes.of(ResourceAttributes.SERVICE_NAME, resourceName)))
+              .addSpanProcessor(spanProcessor)
+              .build()
+          )
+        )
+    } yield tracerProvider
+
+  def stdout(resourceName: String): RIO[Scope, SdkTracerProvider] =
+    for {
+      spanExporter   <- ZIO.fromAutoCloseable(ZIO.succeed(OtlpJsonLoggingSpanExporter.create()))
+      spanProcessor  <- ZIO.fromAutoCloseable(ZIO.succeed(SimpleSpanProcessor.create(spanExporter)))
+      tracerProvider <-
+        ZIO.fromAutoCloseable(
+          ZIO.succeed(
+            SdkTracerProvider
+              .builder()
+              .setResource(Resource.create(Attributes.of(ServiceAttributes.SERVICE_NAME, resourceName)))
               .addSpanProcessor(spanProcessor)
               .build()
           )

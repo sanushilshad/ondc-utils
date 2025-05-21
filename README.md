@@ -21,8 +21,20 @@ The progress can be tracked here: [milestones](#MILESTONES)
 
 ```
 sbt ~reStart
+```
+
+## BUILD RELEASE SCRIPT:
 
 ```
+bash release.sh
+```
+
+## BUILD RESTART SCRIPT:
+
+```
+bash restart.sh
+```
+
 
 ## CUSTOM COMMAND:
 
@@ -104,11 +116,13 @@ secret = {
 * [x] City Fetch API.
 * [x] State Fetch API.
 * [x] Custom command for JWT token geneation.
+* [x] Develop application release Script.
+* [x] Develop application  restart Script.
 * [ ] JWT token verification middleware.
 * [ ] Custom command for Migration.
-* [ ] Develop application release and restart Script.
 
-## MILESTONE 2 (OPTIONAL):
+
+## MILESTONE 2:
 * [ ] Override default error message for request body validation error.
 * [ ] Category Attribute Fetch API.
 * [ ] Add test cases.
