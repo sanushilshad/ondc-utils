@@ -27,7 +27,7 @@ object MainApp extends ZIOAppDefault {
 
           Server
             .serve(MainRoutes())
-            .exitCode
+            // .exitCode
             // .onInterrupt(
             //     ZIO.logInfo("Server interrupted, performing cleanup...") *>
             //     ZIO.unit

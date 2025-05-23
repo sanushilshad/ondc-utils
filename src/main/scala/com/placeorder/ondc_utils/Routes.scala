@@ -94,19 +94,19 @@ object MainRoutes {
             // case body  =>
             //     MainHandlers.fetchURLRequest(body)
             MainHandlers.fetchCountryRequest
-        }.toRoutes.@@(bearerAuthWithContext) ++
+        }.toRoutes.@@(bearerAuthentication) ++
         categoryFetchtPoint.implement { 
             MainHandlers.fetchCategoryRequest
-        }.toRoutes.@@(bearerAuthWithContext) ++
+        }.toRoutes.@@(bearerAuthentication) ++
         domainFetchtPoint.implement { 
             MainHandlers.fetchDomainRequest
-        }.toRoutes.@@(bearerAuthWithContext) ++
+        }.toRoutes.@@(bearerAuthentication) ++
         stateFetchtPoint.implement { 
             MainHandlers.fetchStateRequest
-        }.toRoutes.@@(bearerAuthWithContext) ++
+        }.toRoutes.@@(bearerAuthentication) ++
         cityFetchtPoint.implement { 
             MainHandlers.fetchCityRequest
-        }.toRoutes.@@(bearerAuthWithContext) ++
+        }.toRoutes.@@(bearerAuthentication) ++
         SwaggerUI.routes("/docs", openApi)
 
         routes

@@ -16,7 +16,7 @@ object Utils {
     }
 
     def jwtDecode(token: String, key: String): Try[JwtClaim] =
-        Jwt.decode(token, key, Seq(JwtAlgorithm.HS512))
+        Jwt.decode(token, key, Seq(JwtAlgorithm.HS256))
 
 
     def generateJwtToken(id: String, key: String): ZIO[Any, Nothing, String] = 

@@ -118,7 +118,7 @@ secret = {
 * [x] Custom command for JWT token geneation.
 * [x] Develop application release Script.
 * [x] Develop application  restart Script.
-* [ ] JWT token verification middleware.
+* [x] JWT token verification middleware.
 * [ ] Custom command for Migration.
 
 
