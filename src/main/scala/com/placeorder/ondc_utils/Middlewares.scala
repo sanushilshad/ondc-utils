@@ -61,8 +61,17 @@ val bearerAuthentication: HandlerAspect[UserClient & AppConfig, Option[UserAccou
           case Some("internal") =>
             for {
               config <- ZIO.service[AppConfig]
-              _ <- jwtDecode(tokenStr, config.secret.jwt.key) match {
-                case Success(_) => ZIO.unit // Token is valid, no user info needed
+              result <- jwtDecode(tokenStr, config.secret.jwt.key) match {
+                case Success(claim)  if claim.subject == Some(config.application.serviceId) =>
+                  ZIO.succeed((request, None)) // Valid internal token, no user info needed
+                case Success(_) =>
+                  ZIO.fail(
+                    Response.json(
+                      GenericError.ValidationError(
+                        customerMessage = s"Unauthorized internal token"
+                      ).toJson
+                    ).status(Status.Unauthorized)
+                  )
                 case Failure(ex) =>
                   ZIO.fail(
                     Response.json(
