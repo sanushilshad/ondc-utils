@@ -119,7 +119,7 @@ secret = {
 * [x] Develop application release Script.
 * [x] Develop application  restart Script.
 * [x] JWT token verification middleware.
-* [ ] Custom command for Migration.
+* [x] Custom command for Migration.
 
 
 ## MILESTONE 2:

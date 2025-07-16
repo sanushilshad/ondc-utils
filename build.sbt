@@ -2,8 +2,8 @@ import Dependencies._
 // import sys.process._
 enablePlugins(AssemblyPlugin)
 
-ThisBuild / organization := "com.placeorder"
-ThisBuild / version := "0.0.1"
+ThisBuild / organization      := "com.placeorder"
+ThisBuild / version           := "0.0.1"
 ThisBuild / scalaVersion      := "3.6.2"
 ThisBuild / fork              := true
 ThisBuild / scalacOptions     := optionsOnOrElse("2.13", "2.12")("-Ywarn-unused")("").value
@@ -12,13 +12,13 @@ ThisBuild / semanticdbVersion := scalafixSemanticdb.revision
 ThisBuild / scalafixDependencies ++= List("com.github.liancheng" %% "organize-imports" % "0.6.0")
 
 def settingsApp = Seq(
-  name := "ondc-utils",
+  name                      := "ondc-utils",
   Compile / run / mainClass := Option("com.placeorder.ondc_utils.MainApp"),
   testFrameworks += new TestFramework("zio.test.sbt.ZTestFramework"),
   libraryDependencies ++= Seq(
-    zioHttp, 
-    zioTest, 
-    zioTestSBT, 
+    zioHttp,
+    zioTest,
+    zioTestSBT,
     zioTestMagnolia,
     zioOpenTelemetry,
     openTelemetrySDK,
@@ -32,13 +32,13 @@ def settingsApp = Seq(
     zioTypeSafe,
     jWT,
     getQuill,
-    postgresQuill
+    postgresQuill,
   ),
 )
 
 def settingsDocker = Seq(
-  Docker / version          := version.value,
-  dockerBaseImage := "eclipse-temurin:20.0.1_9-jre",
+  Docker / version := version.value,
+  dockerBaseImage  := "eclipse-temurin:20.0.1_9-jre",
 )
 
 lazy val root = (project in file("."))
@@ -49,13 +49,14 @@ lazy val root = (project in file("."))
 addCommandAlias("fmt", "scalafmt; Test / scalafmt; sFix;")
 addCommandAlias("fmtCheck", "scalafmtCheck; Test / scalafmtCheck; sFixCheck")
 addCommandAlias("sFix", "scalafix OrganizeImports; Test / scalafix OrganizeImports")
-addCommandAlias("sFixCheck", "scalafix --check OrganizeImports; Test / scalafix --check OrganizeImports")
+addCommandAlias(
+  "sFixCheck",
+  "scalafix --check OrganizeImports; Test / scalafix --check OrganizeImports",
+)
 
 maintainer := "Sanu Shilshad <sanushilshad@gmail.com>"
-
-
-assemblyJarName in assembly := "ondc-utils-0.0.1.jar" 
-mergeStrategy in assembly := {
-  case PathList("META-INF", xs @ _*) => MergeStrategy.discard
-  case _ => MergeStrategy.first
-}
+// assemblyJarName in assembly := "ondc-utils-0.0.1.jar"
+// mergeStrategy in assembly := {
+//   case PathList("META-INF", xs @ _*) => MergeStrategy.discard
+//   case _                             => MergeStrategy.first
+// }

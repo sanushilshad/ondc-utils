@@ -13,14 +13,22 @@ import io.getquill.jdbczio.Quill
 import io.getquill.SnakeCase
 import com.placeorder.ondc_utils.Utils.run_custom_commands
 object MainApp extends ZIOAppDefault {
-
   private val instrumentationScopeName = "com.placeorder.ondc_utils"
 
   def run =
     loadConfig().flatMap { appConfig =>
       getArgs.flatMap {
         case Chunk(command, _*) =>
-          run_custom_commands(command, appConfig).exitCode
+          val appLayer        = ZLayer.succeed(appConfig)
+          val dataSourceLayer = DatabaseConfig.makeDataSourceLive            // needs AppConfig
+          val ctxLayer        = Quill.Postgres.fromNamingStrategy(SnakeCase) // needs DataSource
+
+          val fullLayer =
+            appLayer >>> (dataSourceLayer >>> ctxLayer) ++ appLayer
+
+          run_custom_commands(command)
+            .provideLayer(fullLayer)
+            .exitCode
 
         case Chunk() =>
           val appLayer = ZLayer.succeed(appConfig)
@@ -34,7 +42,10 @@ object MainApp extends ZIOAppDefault {
             //   )
             // .catchAllCause(cause => ZIO.logErrorCause("Server failed", cause))
             .provide(
-              OtelSdk.custom(appConfig.tracing.otelServiceName, appConfig.tracing.otelExporterTracesEndpoint),
+              OtelSdk.custom(
+                appConfig.tracing.otelServiceName,
+                appConfig.tracing.otelExporterTracesEndpoint,
+              ),
               OpenTelemetry.tracing(instrumentationScopeName),
               OpenTelemetry.logging(instrumentationScopeName),
               OpenTelemetry.contextZIO,
@@ -44,18 +55,14 @@ object MainApp extends ZIOAppDefault {
               Client.default,
               UserClient.live,
               Quill.Postgres.fromNamingStrategy(SnakeCase),
-              DatabaseConfig.makeDataSourceLive
+              DatabaseConfig.makeDataSourceLive,
             )
       }
     }.catchAll { error =>
       Console.printLine(s"Failed to load config: $error").as(ExitCode.failure)
     }
 }
-
-
 // object MainApp extends ZIOAppDefault {
-
-
 
 //   def run =
 //     Server
