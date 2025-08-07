@@ -124,5 +124,7 @@ secret = {
 
 ## MILESTONE 2:
 * [ ] Add test cases.
-* [ ] Override default error message for request body validation error.
 * [ ] Category Attribute Fetch API.
+
+## MILESTONE 3 (OPTIONAL):
+* [ ] Override default error message for request body validation error.
